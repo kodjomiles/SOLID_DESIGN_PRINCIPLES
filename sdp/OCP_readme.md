@@ -1,20 +1,41 @@
-## The "Specification Pattern". 
-### This pattern allows you to build a clear specification of business rules, where objects can be checked against these specifications. It's particularly useful in scenarios where you need to filter out objects based on some criteria, and these criteria might be combined or changed at runtime.
+# Specification Pattern Guide
 
-In your example, you have an `Specification` interface that declares a method `isSatisfied(product *Product) bool`. This method is intended to return `true` if the `product` satisfies the specification, and `false` otherwise.
+The Specification Pattern offers a robust framework for encapsulating business rules or criteria and evaluating objects against them. It is particularly beneficial in scenarios requiring object filtration based on dynamic criteria, enabling the combination and modification of these criteria at runtime.
 
-For concrete specifications, I've implemented:
+## Overview
 
-- `ColorSpecification`: checks if a product's color matches a specified color.
-- `SizeSpecification`: checks if a product's size matches a specified size.
-- `ColorSizeSpecification`: checks if a product's color and size match specified color and size, respectively.
+This pattern involves an `Specification` interface, which includes a method `isSatisfied(product *Product) bool`. The method evaluates if a given `product` meets the specification, returning `true` for a match and `false` otherwise.
 
-These specifications are straightforward because they directly compare properties of the `Product` with the criteria defined within the specification itself (e.g., `c.color == product.color` for `ColorSpecification`).
+## Implementations
 
-The `AndSpecification` is a composite specification. Instead of checking a single criterion, it combines two specifications (`first` and `second`) and checks if a `Product` satisfies both. The magic of the composite specification is in its flexibility and in how it adheres to the Composite Design Pattern, allowing you to nest multiple specifications together in a tree structure if needed.
+We have several concrete implementations of specifications:
 
-When you call `isSatisfied(product *Product)` on an `AndSpecification` instance, the method executes the `isSatisfied` method of both the `first` and `second` specifications it holds. It then returns `true` only if both specifications are satisfied (`true`), meaning both `first.isSatisfied(product)` and `second.isSatisfied(product)` must return `true`. If either returns `false`, the `AndSpecification`'s `isSatisfied` method will also return `false`.
+- **`ColorSpecification`**: Validates if a product's color aligns with the specified color.
+- **`SizeSpecification`**: Checks whether a product's size matches the specified size.
+- **`ColorSizeSpecification`**: Assesses if both the color and size of a product meet the specified criteria.
 
-This works seamlessly because each specification, including those nested within an `AndSpecification`, adheres to the `Specification` interface. This design allows any object that implements the `Specification` interface to be used interchangeably, enabling the composition of complex specifications from simpler ones without the need to explicitly define how each specification checks the product. The implementation of `isSatisfied` within each concrete specification handles the specific logic for checking the product against its criteria.
+These implementations are straightforward, directly comparing the product's properties against the criteria defined within each specification.
 
-#### In summary, the `AndSpecification` works by relying on the polymorphic behavior of the `Specification` interface. Each concrete specification provides its own implementation of `isSatisfied`, which `AndSpecification` invokes on its nested specifications to determine if a product satisfies the composite criteria.
+## Composite Specifications
+
+A key feature of the Specification Pattern is its support for composite specifications, such as the `AndSpecification`. This allows for combining multiple specifications to form a single composite specification. The `AndSpecification`, for example, combines two specifications and checks if a product satisfies both.
+
+### How It Works
+
+When `isSatisfied(product *Product)` is invoked on an `AndSpecification` instance, it sequentially calls the `isSatisfied` method on its two constituent specifications. The product is considered to meet the composite specification only if it satisfies both individual specifications.
+
+This mechanism leverages the polymorphic nature of the `Specification` interface, enabling seamless interchangeability and composition of specifications. Each concrete specification encapsulates its own evaluation logic, facilitating the construction of complex, composite specifications from simpler, single-criterion specifications.
+
+## Principles Demonstrated
+
+### Open/Closed Principle
+
+The Specification Pattern exemplifies the Open/Closed Principle. Systems can introduce new specifications or composite specifications without altering existing code, thereby remaining open for extension but closed for modification.
+
+### Single Responsibility Principle
+
+Each specification is tasked with a single responsibility: to determine whether a product meets a particular criterion. This clear delineation of responsibilities enhances modularity and maintainability.
+
+## Summary
+
+The Specification Pattern provides a flexible and extensible approach to defining business rules and evaluating objects against them. By enabling the composition of complex specifications from simpler ones, it facilitates the dynamic combination and alteration of business rules, adhering to key software design principles.
